@@ -1,3 +1,4 @@
+
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
@@ -6,8 +7,8 @@ import { Providers } from '@/components/Providers'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'NutroScan Pro - AI-Powered Meal Planning',
-  description: 'Transform your health with personalized AI-powered meal plans',
+  title: 'NutroScan Pro',
+  description: 'AI-Powered Meal Planning for Better Health',
 }
 
 export default function RootLayout({
