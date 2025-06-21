@@ -1,6 +1,6 @@
+
 import { NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
-import GoogleProvider from 'next-auth/providers/google'
 import bcrypt from 'bcryptjs'
 import { connectDB } from '@/lib/db/mongodb'
 import User from '@/models/User'
@@ -18,58 +18,55 @@ export const authOptions: NextAuthOptions = {
           return null
         }
 
-        await connectDB()
+        try {
+          await connectDB()
+          
+          const user = await User.findOne({ email: credentials.email })
+          
+          if (!user) {
+            return null
+          }
 
-        const user = await User.findOne({ email: credentials.email })
-          .select('+password')
-          .lean()
+          const isPasswordValid = await bcrypt.compare(
+            credentials.password,
+            user.password
+          )
 
-        if (!user) {
+          if (!isPasswordValid) {
+            return null
+          }
+
+          return {
+            id: user._id.toString(),
+            email: user.email,
+            name: user.name,
+          }
+        } catch (error) {
+          console.error('Auth error:', error)
           return null
-        }
-
-        const isPasswordValid = await bcrypt.compare(credentials.password, user.password)
-        if (!isPasswordValid) {
-          return null
-        }
-
-        return {
-          id: user._id.toString(),
-          email: user.email,
-          name: user.name,
-          role: user.role || 'user',
-          onboardingCompleted: user.onboardingCompleted || false,
         }
       }
-    }),
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     })
   ],
   session: {
-    strategy: 'jwt',
+    strategy: 'jwt'
+  },
+  pages: {
+    signIn: '/signin',
+    signUp: '/signup'
   },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id
-        token.role = user.role || 'user'
-        token.onboardingCompleted = user.onboardingCompleted || false
       }
       return token
     },
     async session({ session, token }) {
       if (token) {
         session.user.id = token.id as string
-        session.user.role = token.role as string
-        session.user.onboardingCompleted = token.onboardingCompleted as boolean
       }
       return session
-    },
-  },
-  pages: {
-    signIn: '/signin',
-    signUp: '/signup',
-  },
+    }
+  }
 }

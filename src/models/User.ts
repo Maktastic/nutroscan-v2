@@ -1,20 +1,5 @@
-import mongoose from 'mongoose'
 
-const healthProfileSchema = new mongoose.Schema({
-  condition: {
-    type: String,
-    enum: ['diabetes-type-2', 'hypertension', 'pcos', 'heart-disease', 'general-wellness'],
-    default: 'general-wellness'
-  },
-  dietaryPreferences: [String],
-  allergies: [String],
-  targetCalories: Number,
-  activityLevel: {
-    type: String,
-    enum: ['sedentary', 'lightly-active', 'moderately-active', 'very-active'],
-    default: 'moderately-active'
-  }
-})
+import mongoose from 'mongoose'
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -28,21 +13,35 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: function() {
-      return !this.googleId
+    required: true,
+  },
+  healthProfile: {
+    condition: {
+      type: String,
+      enum: ['diabetes-type-2', 'hypertension', 'pcos', 'heart-disease', 'general-wellness'],
+      default: 'general-wellness'
     },
+    dietaryPreferences: [String],
+    allergies: [String],
+    targetCalories: Number,
+    activityLevel: {
+      type: String,
+      enum: ['sedentary', 'lightly-active', 'moderately-active', 'very-active'],
+      default: 'moderately-active'
+    }
   },
-  googleId: String,
-  role: {
-    type: String,
-    enum: ['user', 'admin'],
-    default: 'user',
-  },
-  onboardingCompleted: {
-    type: Boolean,
-    default: false,
-  },
-  healthProfile: healthProfileSchema,
+  subscription: {
+    plan: {
+      type: String,
+      enum: ['free', 'premium'],
+      default: 'free'
+    },
+    status: {
+      type: String,
+      enum: ['active', 'inactive', 'cancelled'],
+      default: 'active'
+    }
+  }
 }, {
   timestamps: true
 })
