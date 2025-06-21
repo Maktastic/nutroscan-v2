@@ -27,11 +27,8 @@ export const authOptions: NextAuthOptions = {
             return null
           }
 
-          const isPasswordValid = await bcrypt.compare(
-            credentials.password,
-            user.password
-          )
-
+          const isPasswordValid = await bcrypt.compare(credentials.password, user.password)
+          
           if (!isPasswordValid) {
             return null
           }
@@ -40,6 +37,7 @@ export const authOptions: NextAuthOptions = {
             id: user._id.toString(),
             email: user.email,
             name: user.name,
+            image: user.image
           }
         } catch (error) {
           console.error('Auth error:', error)
@@ -50,10 +48,6 @@ export const authOptions: NextAuthOptions = {
   ],
   session: {
     strategy: 'jwt'
-  },
-  pages: {
-    signIn: '/signin',
-    signUp: '/signup'
   },
   callbacks: {
     async jwt({ token, user }) {
@@ -68,5 +62,9 @@ export const authOptions: NextAuthOptions = {
       }
       return session
     }
+  },
+  pages: {
+    signIn: '/signin',
+    signUp: '/signup'
   }
 }

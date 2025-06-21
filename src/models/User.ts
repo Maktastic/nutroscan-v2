@@ -4,43 +4,46 @@ import mongoose from 'mongoose'
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true,
+    required: true
   },
   email: {
     type: String,
     required: true,
-    unique: true,
+    unique: true
   },
   password: {
     type: String,
-    required: true,
+    required: true
+  },
+  image: {
+    type: String
   },
   healthProfile: {
-    condition: {
+    age: Number,
+    gender: {
       type: String,
-      enum: ['diabetes-type-2', 'hypertension', 'pcos', 'heart-disease', 'general-wellness'],
-      default: 'general-wellness'
+      enum: ['male', 'female', 'other']
     },
-    dietaryPreferences: [String],
-    allergies: [String],
-    targetCalories: Number,
+    height: Number, // in cm
+    weight: Number, // in kg
     activityLevel: {
       type: String,
-      enum: ['sedentary', 'lightly-active', 'moderately-active', 'very-active'],
-      default: 'moderately-active'
-    }
-  },
-  subscription: {
-    plan: {
-      type: String,
-      enum: ['free', 'premium'],
-      default: 'free'
+      enum: ['sedentary', 'light', 'moderate', 'very-active', 'extra-active']
     },
-    status: {
+    condition: {
       type: String,
-      enum: ['active', 'inactive', 'cancelled'],
-      default: 'active'
-    }
+      enum: ['general-wellness', 'diabetes', 'heart-disease', 'hypertension', 'pcos', 'thyroid', 'kidney-disease', 'liver-disease']
+    },
+    dietaryPreferences: [{
+      type: String,
+      enum: ['vegetarian', 'vegan', 'keto', 'paleo', 'mediterranean', 'low-carb', 'low-fat', 'high-protein', 'gluten-free', 'dairy-free']
+    }],
+    allergies: [String],
+    targetCalories: Number,
+    goals: [{
+      type: String,
+      enum: ['weight-loss', 'weight-gain', 'muscle-gain', 'maintenance', 'improved-energy', 'better-digestion']
+    }]
   }
 }, {
   timestamps: true
