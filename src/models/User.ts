@@ -1,88 +1,112 @@
-import { Schema, model, models } from 'mongoose'
 
-const UserSchema = new Schema({
+import mongoose from 'mongoose'
+
+export interface IUser extends mongoose.Document {
+  email: string
+  password?: string
+  name: string
+  role: 'user' | 'admin'
+  onboardingCompleted: boolean
+  profile?: {
+    age?: number
+    weight?: number
+    height?: number
+    activityLevel?: 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active'
+    dietaryRestrictions?: string[]
+    healthGoals?: string[]
+    allergies?: string[]
+  }
+  preferences?: {
+    cuisineTypes?: string[]
+    mealTypes?: string[]
+    cookingTime?: number
+    servingSize?: number
+  }
+  createdAt: Date
+  updatedAt: Date
+}
+
+const userSchema = new mongoose.Schema({
   email: {
     type: String,
-    unique: true,
     required: [true, 'Email is required'],
+    unique: true,
     lowercase: true,
+    trim: true,
+    match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please enter a valid email']
   },
   password: {
     type: String,
-    required: false, // Optional for OAuth users
+    required: function() {
+      return !this.googleId
+    },
+    minlength: [8, 'Password must be at least 8 characters long'],
+    select: false
   },
   name: {
     type: String,
     required: [true, 'Name is required'],
+    trim: true,
+    maxlength: [50, 'Name cannot exceed 50 characters']
   },
-  image: String,
   role: {
     type: String,
     enum: ['user', 'admin'],
-    default: 'user',
-  },
-  emailVerified: Date,
-  onboardingCompleted: {
-    type: Boolean,
-    default: false,
-  },
-  healthProfile: {
-    type: Schema.Types.ObjectId,
-    ref: 'HealthProfile',
-  },
-  subscription: {
-    stripeCustomerId: String,
-    stripeSubscriptionId: String,
-    stripePriceId: String,
-    plan: {
-      type: String,
-      enum: ['free', 'starter', 'professional', 'enterprise'],
-      default: 'free',
-    },
-    status: {
-      type: String,
-      enum: ['active', 'canceled', 'past_due', 'trialing'],
-    },
-    currentPeriodEnd: Date,
-    cancelAtPeriodEnd: Boolean,
-  },
-}, {
-  timestamps: true,
-})
-
-const User = models.User || model('User', UserSchema)
-
-export default User
-import mongoose from 'mongoose'
-
-const userSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true
-  },
-  password: {
-    type: String,
-    required: true
-  },
-  role: {
-    type: String,
     default: 'user'
   },
   onboardingCompleted: {
     type: Boolean,
     default: false
   },
-  healthProfile: {
-    condition: String,
-    dietaryPreferences: [String],
-    allergies: [String],
-    targetCalories: Number,
-    activityLevel: String
+  profile: {
+    age: {
+      type: Number,
+      min: [1, 'Age must be at least 1'],
+      max: [150, 'Age cannot exceed 150']
+    },
+    weight: {
+      type: Number,
+      min: [1, 'Weight must be at least 1 kg']
+    },
+    height: {
+      type: Number,
+      min: [1, 'Height must be at least 1 cm']
+    },
+    activityLevel: {
+      type: String,
+      enum: ['sedentary', 'light', 'moderate', 'active', 'very_active']
+    },
+    dietaryRestrictions: [{
+      type: String,
+      trim: true
+    }],
+    healthGoals: [{
+      type: String,
+      trim: true
+    }],
+    allergies: [{
+      type: String,
+      trim: true
+    }]
+  },
+  preferences: {
+    cuisineTypes: [{
+      type: String,
+      trim: true
+    }],
+    mealTypes: [{
+      type: String,
+      trim: true
+    }],
+    cookingTime: {
+      type: Number,
+      min: [1, 'Cooking time must be at least 1 minute']
+    },
+    servingSize: {
+      type: Number,
+      min: [1, 'Serving size must be at least 1'],
+      default: 1
+    }
   }
 }, {
   timestamps: true
