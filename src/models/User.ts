@@ -1,61 +1,48 @@
-import mongoose, { Schema, Document } from 'mongoose'
+import mongoose from 'mongoose'
 
-export interface IUser extends Document {
-  email: string
-  password?: string
-  name: string
-  role: 'user' | 'admin'
-  provider?: 'credentials' | 'google'
-  onboardingCompleted: boolean
-  preferences?: {
-    dietaryRestrictions: string[]
-    allergies: string[]
-    goals: string[]
-    activityLevel: string
-    budget: string
-    cookingTime: string
+const healthProfileSchema = new mongoose.Schema({
+  condition: {
+    type: String,
+    enum: ['diabetes-type-2', 'hypertension', 'pcos', 'heart-disease', 'general-wellness'],
+    default: 'general-wellness'
+  },
+  dietaryPreferences: [String],
+  allergies: [String],
+  targetCalories: Number,
+  activityLevel: {
+    type: String,
+    enum: ['sedentary', 'lightly-active', 'moderately-active', 'very-active'],
+    default: 'moderately-active'
   }
-  createdAt: Date
-  updatedAt: Date
-}
+})
 
-const userSchema = new Schema<IUser>({
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    lowercase: true,
-  },
-  password: {
-    type: String,
-    select: false, // Don't return password by default
-  },
+const userSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
   },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  password: {
+    type: String,
+    required: function() {
+      return !this.googleId
+    },
+  },
+  googleId: String,
   role: {
     type: String,
     enum: ['user', 'admin'],
     default: 'user',
   },
-  provider: {
-    type: String,
-    enum: ['credentials', 'google'],
-    default: 'credentials',
-  },
   onboardingCompleted: {
     type: Boolean,
     default: false,
   },
-  preferences: {
-    dietaryRestrictions: [String],
-    allergies: [String],
-    goals: [String],
-    activityLevel: String,
-    budget: String,
-    cookingTime: String,
-  },
+  healthProfile: healthProfileSchema,
 }, {
   timestamps: true
 })

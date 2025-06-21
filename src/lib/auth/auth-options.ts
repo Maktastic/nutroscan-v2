@@ -1,4 +1,3 @@
-
 import { NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import GoogleProvider from 'next-auth/providers/google'
@@ -38,8 +37,8 @@ export const authOptions: NextAuthOptions = {
           id: user._id.toString(),
           email: user.email,
           name: user.name,
-          role: user.role,
-          onboardingCompleted: user.onboardingCompleted
+          role: user.role || 'user',
+          onboardingCompleted: user.onboardingCompleted || false,
         }
       }
     }),
@@ -51,14 +50,8 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: 'jwt',
   },
-  pages: {
-    signIn: '/signin',
-    signUp: '/signup',
-    error: '/auth/error',
-    verifyRequest: '/auth/verify-request',
-  },
   callbacks: {
-    async jwt({ token, user, account }) {
+    async jwt({ token, user }) {
       if (user) {
         token.id = user.id
         token.role = user.role || 'user'
@@ -74,31 +67,9 @@ export const authOptions: NextAuthOptions = {
       }
       return session
     },
-    async signIn({ user, account, profile }) {
-      if (account?.provider === 'google') {
-        await connectDB()
-
-        try {
-          const existingUser = await User.findOne({ email: user.email })
-
-          if (!existingUser) {
-            await User.create({
-              email: user.email,
-              name: user.name,
-              role: 'user',
-              provider: 'google',
-              onboardingCompleted: false,
-            })
-          }
-
-          return true
-        } catch (error) {
-          console.error('Error during Google sign in:', error)
-          return false
-        }
-      }
-
-      return true
-    },
+  },
+  pages: {
+    signIn: '/signin',
+    signUp: '/signup',
   },
 }
