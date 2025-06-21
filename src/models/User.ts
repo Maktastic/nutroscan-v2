@@ -1,113 +1,61 @@
+import mongoose, { Schema, Document } from 'mongoose'
 
-import mongoose from 'mongoose'
-
-export interface IUser extends mongoose.Document {
+export interface IUser extends Document {
   email: string
   password?: string
   name: string
   role: 'user' | 'admin'
+  provider?: 'credentials' | 'google'
   onboardingCompleted: boolean
-  profile?: {
-    age?: number
-    weight?: number
-    height?: number
-    activityLevel?: 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active'
-    dietaryRestrictions?: string[]
-    healthGoals?: string[]
-    allergies?: string[]
-  }
   preferences?: {
-    cuisineTypes?: string[]
-    mealTypes?: string[]
-    cookingTime?: number
-    servingSize?: number
+    dietaryRestrictions: string[]
+    allergies: string[]
+    goals: string[]
+    activityLevel: string
+    budget: string
+    cookingTime: string
   }
   createdAt: Date
   updatedAt: Date
 }
 
-const userSchema = new mongoose.Schema({
+const userSchema = new Schema<IUser>({
   email: {
     type: String,
-    required: [true, 'Email is required'],
+    required: true,
     unique: true,
     lowercase: true,
-    trim: true,
-    match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please enter a valid email']
   },
   password: {
     type: String,
-    required: function() {
-      return !this.googleId
-    },
-    minlength: [8, 'Password must be at least 8 characters long'],
-    select: false
+    select: false, // Don't return password by default
   },
   name: {
     type: String,
-    required: [true, 'Name is required'],
-    trim: true,
-    maxlength: [50, 'Name cannot exceed 50 characters']
+    required: true,
   },
   role: {
     type: String,
     enum: ['user', 'admin'],
-    default: 'user'
+    default: 'user',
+  },
+  provider: {
+    type: String,
+    enum: ['credentials', 'google'],
+    default: 'credentials',
   },
   onboardingCompleted: {
     type: Boolean,
-    default: false
-  },
-  profile: {
-    age: {
-      type: Number,
-      min: [1, 'Age must be at least 1'],
-      max: [150, 'Age cannot exceed 150']
-    },
-    weight: {
-      type: Number,
-      min: [1, 'Weight must be at least 1 kg']
-    },
-    height: {
-      type: Number,
-      min: [1, 'Height must be at least 1 cm']
-    },
-    activityLevel: {
-      type: String,
-      enum: ['sedentary', 'light', 'moderate', 'active', 'very_active']
-    },
-    dietaryRestrictions: [{
-      type: String,
-      trim: true
-    }],
-    healthGoals: [{
-      type: String,
-      trim: true
-    }],
-    allergies: [{
-      type: String,
-      trim: true
-    }]
+    default: false,
   },
   preferences: {
-    cuisineTypes: [{
-      type: String,
-      trim: true
-    }],
-    mealTypes: [{
-      type: String,
-      trim: true
-    }],
-    cookingTime: {
-      type: Number,
-      min: [1, 'Cooking time must be at least 1 minute']
-    },
-    servingSize: {
-      type: Number,
-      min: [1, 'Serving size must be at least 1'],
-      default: 1
-    }
-  }
+    dietaryRestrictions: [String],
+    allergies: [String],
+    goals: [String],
+    activityLevel: String,
+    budget: String,
+    cookingTime: String,
+  },
 }, {
   timestamps: true
 })

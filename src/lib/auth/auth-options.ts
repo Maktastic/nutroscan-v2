@@ -1,3 +1,4 @@
+
 import { NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import GoogleProvider from 'next-auth/providers/google'
@@ -57,7 +58,7 @@ export const authOptions: NextAuthOptions = {
     verifyRequest: '/auth/verify-request',
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
       if (user) {
         token.id = user.id
         token.role = user.role || 'user'
@@ -85,11 +86,14 @@ export const authOptions: NextAuthOptions = {
               email: user.email,
               name: user.name,
               role: 'user',
+              provider: 'google',
               onboardingCompleted: false,
             })
           }
+
+          return true
         } catch (error) {
-          console.error('Error creating user:', error)
+          console.error('Error during Google sign in:', error)
           return false
         }
       }

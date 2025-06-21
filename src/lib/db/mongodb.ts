@@ -1,3 +1,4 @@
+
 import mongoose from 'mongoose'
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/nutroscan'
@@ -8,7 +9,7 @@ if (!cached) {
   cached = global.mongoose = { conn: null, promise: null }
 }
 
-export async function connectDB() {
+async function connectDB() {
   if (cached.conn) {
     return cached.conn
   }
@@ -33,4 +34,5 @@ export async function connectDB() {
   return cached.conn
 }
 
+export { connectDB }
 export default connectDB
