@@ -111,14 +111,14 @@ export async function getUserSubscriptionStatus(userId: string) {
     }
 
     const subscription = await stripe.subscriptions.retrieve(
-      user.subscription.stripeSubscriptionId
+      user?.subscription.stripeSubscriptionId
     )
 
     return {
       isActive: subscription.status === 'active' || subscription.status === 'trialing',
-      plan: user.subscription.plan,
+      plan: user?.subscription.plan,
       status: subscription.status,
-      currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+      currentPeriodEnd: new Date(subscription?.current_period_end * 1000),
       cancelAtPeriodEnd: subscription.cancel_at_period_end,
       trialEnd: subscription.trial_end ? new Date(subscription.trial_end * 1000) : null,
     }
